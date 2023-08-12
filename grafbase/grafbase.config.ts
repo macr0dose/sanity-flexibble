@@ -7,7 +7,7 @@ avatarUrl: g.url(),
 description: g.string().optional(),
 githubUrl: g.url().optional(),
 linkedInUrl: g.url().optional(),
-projects:: g.relation(() => Project).list().optional(),
+projects: g.relation(() => Project).list().optional(),
 })
 
 const Project = g.model('Project', {
