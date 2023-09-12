@@ -1,3 +1,4 @@
+import { UserProfile } from "@/common.types";
 import ProfilePage from "@/components/ProfilePage";
 import { getUserProjects } from "@/lib/actions";
 
