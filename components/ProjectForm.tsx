@@ -1,6 +1,6 @@
 "use client";
 
-import { FormState, SessionInterface } from "@/common.types";
+import { FormState, ProjectInterface, SessionInterface } from "@/common.types";
 import Image from "next/image";
 import { ChangeEvent, useState } from "react";
 import FormField from "./FormField";
