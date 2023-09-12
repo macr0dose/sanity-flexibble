@@ -4,14 +4,14 @@ import LoadMore from "@/components/LoadMore";
 import ProjectCard from "@/components/ProjectCard";
 import { fetchAllProjects } from "@/lib/actions";
 
-type searchParams = {
+type SearchParams = {
   category?: string | null;
   endcursor?: string | null;
-};
+}
 
 type Props = {
-  searchParams: SearchParams;
-};
+  searchParams: SearchParams
+}
 
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
