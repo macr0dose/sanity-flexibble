@@ -24,23 +24,24 @@ const AuthProviders = () => {
       const res = await getProviders();
 
       setProviders(res);
-    }
+    };
 
     fetchProviders();
   }, []);
 
-  if(providers) {
+  if (providers) {
     return (
       <div>
         {Object.values(providers).map((provider: Provider, i) => (
-          <Button key={i}
-          title='Sign In'
-          handleClick={() => signIn(provider?.id)}
+          <Button
+            key={i}
+            title="Sign In"
+            handleClick={() => signIn(provider?.id)}
           />
         ))}
       </div>
-    )
+    );
   }
-}
+};
 
 export default AuthProviders;
