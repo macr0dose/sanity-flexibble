@@ -1,7 +1,8 @@
 "use client";
 
 import { getProviders, signIn } from "next-auth/react";
-import { useState, useEffect, ProviderProps } from "react";
+import React, { useState, useEffect } from "react";
+
 import Button from "./Button";
 
 type Provider = {
