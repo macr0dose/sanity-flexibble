@@ -33,8 +33,8 @@ const ProjectForm = ({ type, session, project }: Props) => {
         router.replace("/");
       }
 
-      if(type === 'edit') {
-        await updateProject(form, project?.id as string, token)
+      if (type === "edit") {
+        await updateProject(form, project?.id as string, token);
 
         router.replace("/");
       }
@@ -76,7 +76,7 @@ const ProjectForm = ({ type, session, project }: Props) => {
     image: project?.image || "",
     liveSiteUrl: project?.liveSiteUrl || "",
     githubUrl: project?.githubUrl || "",
-    category: project?.category || ""
+    category: project?.category || "",
   });
 
   return (
