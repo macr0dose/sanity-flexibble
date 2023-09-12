@@ -1,3 +1,4 @@
+import { ProjectInterface } from "@/common.types";
 import Modal from "@/components/Modal";
 import ProjectForm from "@/components/ProjectForm";
 import { getProjectDetails } from "@/lib/actions";
