@@ -6,7 +6,7 @@ import { ChangeEvent, useState } from "react";
 import FormField from "./FormField";
 import CustomMenu from "./CustomMenu";
 import { categoryFilters } from "@/constants";
-import Button from "./button";
+import Button from "./Button";
 import { createNewProject, fetchToken, updateProject } from "@/lib/actions";
 import { useRouter } from "next/navigation";
 
@@ -147,7 +147,7 @@ const ProjectForm = ({ type, session, project }: Props) => {
           type="submit"
           leftIcon={isSubmitting ? "" : "/plus.svg"}
           isSubmitting={isSubmitting}
-        ></Button>
+        />
       </div>
     </form>
   );
