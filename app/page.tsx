@@ -1,24 +1,29 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Categories from "@/components/Categories";
 import LoadMore from "@/components/LoadMore";
 import ProjectCard from "@/components/ProjectCard";
-import SkeletonLoader from "@/components/SkeletonLoader"; // Make sure this path is correct
 import { fetchAllProjects } from "@/lib/actions";
 import { ProjectInterface } from "@/common.types";
+import SkeletonLoader from "@/components/SkeletonLoader"; // Import the Skeleton Loader component
+
+// Define an interface for the project data structure
+interface ProjectData {
+  node: ProjectInterface;
+}
 
 type SearchParams = {
   category?: string;
   endCursor?: string;
-};
+}
 
 type Props = {
   searchParams: SearchParams;
-};
+}
 
 type ProjectSearch = {
   projectSearch: {
-    edges: { node: ProjectInterface }[];
+    edges: ProjectData[];
     pageInfo: {
       hasPreviousPage: boolean;
       hasNextPage: boolean;
@@ -30,7 +35,7 @@ type ProjectSearch = {
 
 const Home = ({ searchParams: { category, endCursor } }: Props) => {
   const [loading, setLoading] = useState(true);
-  const [projectsToDisplay, setProjectsToDisplay] = useState([]);
+  const [projectsToDisplay, setProjectsToDisplay] = useState<ProjectData[]>([]);
   const [pagination, setPagination] = useState({});
 
   useEffect(() => {
@@ -54,18 +59,18 @@ const Home = ({ searchParams: { category, endCursor } }: Props) => {
 
       {loading ? (
         <SkeletonLoader count={5} /> // Adjust 'count' based on how many loaders you want
-      ) : (
+      ) : projectsToDisplay.length > 0 ? (
         <>
           <section className="projects-grid">
-            {projectsToDisplay.map(({ node }: { node: ProjectInterface }) => (
+            {projectsToDisplay.map(({ node }: ProjectData) => (
               <ProjectCard
-                key={node?.id}
-                id={node?.id}
-                image={node?.image}
-                title={node?.title}
-                name={node?.createdBy?.name}
-                avatarUrl={node?.createdBy?.avatarUrl}
-                userId={node?.createdBy?.id}
+                key={node.id}
+                id={node.id}
+                image={node.image}
+                title={node.title}
+                name={node.createdBy.name}
+                avatarUrl={node.createdBy.avatarUrl}
+                userId={node.createdBy.id}
               />
             ))}
           </section>
@@ -77,6 +82,10 @@ const Home = ({ searchParams: { category, endCursor } }: Props) => {
             hasNextPage={pagination.hasNextPage}
           />
         </>
+      ) : (
+        <p className="no-result-text text-center">
+          No projects found, create one first.
+        </p>
       )}
     </section>
   );
