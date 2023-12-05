@@ -1,15 +1,26 @@
 "use client"
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import Categories from "@/components/Categories";
 import LoadMore from "@/components/LoadMore";
 import ProjectCard from "@/components/ProjectCard";
 import { fetchAllProjects } from "@/lib/actions";
-import { ProjectInterface } from "@/common.types";
-import SkeletonLoader from "@/components/SkeletonLoader"; // Import the Skeleton Loader component
+import SkeletonLoader from "@/components/SkeletonLoader";
 
-// Define an interface for the project data structure
-interface ProjectData {
-  node: ProjectInterface;
+// Define interfaces
+interface ProjectInterface {
+  id: string;
+  image: string;
+  title: string;
+  name: string;
+  avatarUrl: string;
+  userId: string;
+}
+
+interface PaginationInfo {
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
+  startCursor?: string;
+  endCursor?: string;
 }
 
 type SearchParams = {
@@ -17,36 +28,32 @@ type SearchParams = {
   endCursor?: string;
 }
 
+type ProjectSearchData = {
+  projectSearch: {
+    edges: { node: ProjectInterface }[];
+    pageInfo: PaginationInfo;
+  };
+};
+
 type Props = {
   searchParams: SearchParams;
 }
 
-type ProjectSearch = {
-  projectSearch: {
-    edges: ProjectData[];
-    pageInfo: {
-      hasPreviousPage: boolean;
-      hasNextPage: boolean;
-      startCursor: string;
-      endCursor: string;
-    };
-  };
-};
-
 const Home = ({ searchParams: { category, endCursor } }: Props) => {
   const [loading, setLoading] = useState(true);
-  const [projectsToDisplay, setProjectsToDisplay] = useState<ProjectData[]>([]);
-  const [pagination, setPagination] = useState({});
+  const [projectsToDisplay, setProjectsToDisplay] = useState<ProjectInterface[]>([]);
+  const [pagination, setPagination] = useState<PaginationInfo>({ hasPreviousPage: false, hasNextPage: false });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = (await fetchAllProjects(category, endCursor)) as ProjectSearch;
-        setProjectsToDisplay(data.projectSearch.edges || []);
-        setPagination(data.projectSearch.pageInfo || {});
+        const data = (await fetchAllProjects(category, endCursor)) as ProjectSearchData;
+        setProjectsToDisplay(data.projectSearch.edges.map(edge => edge.node));
+        setPagination(data.projectSearch.pageInfo);
         setLoading(false);
       } catch (error) {
         console.error(error);
+        setLoading(false);
       }
     };
 
@@ -58,19 +65,19 @@ const Home = ({ searchParams: { category, endCursor } }: Props) => {
       <Categories />
 
       {loading ? (
-        <SkeletonLoader count={5} /> // Adjust 'count' based on how many loaders you want
-      ) : projectsToDisplay.length > 0 ? (
+        <SkeletonLoader count={5} /> // Adjust 'count' as needed
+      ) : (
         <>
           <section className="projects-grid">
-            {projectsToDisplay.map(({ node }: ProjectData) => (
+            {projectsToDisplay.map((project: ProjectInterface) => (
               <ProjectCard
-                key={node.id}
-                id={node.id}
-                image={node.image}
-                title={node.title}
-                name={node.createdBy.name}
-                avatarUrl={node.createdBy.avatarUrl}
-                userId={node.createdBy.id}
+                key={project.id}
+                id={project.id}
+                image={project.image}
+                title={project.title}
+                name={project.name}
+                avatarUrl={project.avatarUrl}
+                userId={project.userId}
               />
             ))}
           </section>
@@ -82,10 +89,6 @@ const Home = ({ searchParams: { category, endCursor } }: Props) => {
             hasNextPage={pagination.hasNextPage}
           />
         </>
-      ) : (
-        <p className="no-result-text text-center">
-          No projects found, create one first.
-        </p>
       )}
     </section>
   );
