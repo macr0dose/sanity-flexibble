@@ -5,6 +5,7 @@ import LoadMore from "@/components/LoadMore";
 import ProjectCard from "@/components/ProjectCard";
 import SkeletonLoader from "@/components/SkeletonLoader"; // Make sure this path is correct
 import { fetchAllProjects } from "@/lib/actions";
+import { ProjectInterface } from "@/common.types";
 
 type SearchParams = {
   category?: string;
