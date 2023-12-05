@@ -1,11 +1,11 @@
-"use client">
+"use client"
 import { useState, useEffect } from "react";
 import Categories from "@/components/Categories";
 import LoadMore from "@/components/LoadMore";
 import ProjectCard from "@/components/ProjectCard";
 import { fetchAllProjects } from "@/lib/actions";
 import { ProjectInterface } from "@/common.types";
-import SkeletonLoader from "./SkeletonLoader"; // Import the SkeletonLoader component
+import SkeletonLoader from "@/components/SkeletonLoader"; // Import the SkeletonLoader component
 
 type SearchParams = {
   category?: string;
@@ -28,7 +28,7 @@ type ProjectSearch = {
   };
 };
 
-const Home = async ({ searchParams: { category, endCursor } }: Props) => {
+const Home = ({ searchParams: { category, endCursor } }: Props) => {
   const [loading, setLoading] = useState(true);
   const [projectsToDisplay, setProjectsToDisplay] = useState([]);
   const [pagination, setPagination] = useState({});
@@ -39,9 +39,9 @@ const Home = async ({ searchParams: { category, endCursor } }: Props) => {
         const data = (await fetchAllProjects(category, endCursor)) as ProjectSearch;
         setProjectsToDisplay(data.projectSearch.edges || []);
         setPagination(data.projectSearch.pageInfo || {});
-        setLoading(false);
       } catch (error) {
         console.error(error);
+      } finally {
         setLoading(false);
       }
     };
