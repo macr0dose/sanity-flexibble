@@ -36,12 +36,12 @@ const Home = ({ searchParams: { category, endCursor } }: HomeProps) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await fetchAllProjects(category, endCursor);
+        const data = (await fetchAllProjects(category, endCursor)) as ProjectSearchData;
         setProjectsToDisplay(data.projectSearch.edges || []);
         setPagination(data.projectSearch.pageInfo || {});
         setLoading(false);
       } catch (error) {
-        console.error('Failed to fetch projects:', error);
+        // Handle error
       }
     };
 
