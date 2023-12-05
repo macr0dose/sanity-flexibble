@@ -19,7 +19,16 @@ const ProjectCardSkeleton = () => {
   );
 };
 
-const Home = ({ searchParams: { category, endCursor } }) => {
+type SearchParams = {
+  category?: string;
+  endCursor?: string;
+}
+
+type HomeProps = {
+  searchParams: SearchParams;
+}
+
+const Home = ({ searchParams: { category, endCursor } }: HomeProps) => {
   const [loading, setLoading] = useState(true);
   const [projectsToDisplay, setProjectsToDisplay] = useState([]);
   const [pagination, setPagination] = useState({});
