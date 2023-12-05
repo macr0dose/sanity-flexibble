@@ -3,17 +3,18 @@ import { useState, useEffect } from "react";
 import Categories from "@/components/Categories";
 import LoadMore from "@/components/LoadMore";
 import ProjectCard from "@/components/ProjectCard";
+import SkeletonLoader from "@/components/SkeletonLoader"; // Import your SkeletonLoader component
 import { fetchAllProjects } from "@/lib/actions";
-import { ProjectInterface } from "@/common.types";
-import SkeletonLoader from "@/components/SkeletonLoader"; // Import the SkeletonLoader component
 
-type SearchParams = {
-  category?: string;
-  endCursor?: string;
-}
-
-type Props = {
-  searchParams: SearchParams
+interface ProjectInterface {
+  id: string;
+  image: string;
+  title: string;
+  createdBy: {
+    name: string;
+    avatarUrl: string;
+    id: string;
+  };
 }
 
 type ProjectSearch = {
@@ -28,16 +29,24 @@ type ProjectSearch = {
   };
 };
 
+type Props = {
+  searchParams: {
+    category?: string;
+    endCursor?: string;
+  };
+};
+
 const Home = ({ searchParams: { category, endCursor } }: Props) => {
   const [loading, setLoading] = useState(true);
-  const [projectsToDisplay, setProjectsToDisplay] = useState([]);
+  const [projectsToDisplay, setProjectsToDisplay] = useState<ProjectInterface[]>([]);
   const [pagination, setPagination] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const data = (await fetchAllProjects(category, endCursor)) as ProjectSearch;
-        setProjectsToDisplay(data.projectSearch.edges || []);
+        setProjectsToDisplay(data.projectSearch.edges.map(edge => edge.node));
         setPagination(data.projectSearch.pageInfo || {});
       } catch (error) {
         console.error(error);
@@ -48,43 +57,36 @@ const Home = ({ searchParams: { category, endCursor } }: Props) => {
     fetchData();
   }, [category, endCursor]);
 
-  if (loading) {
-    return (
-      <section className="flex-start flex-col paddings">
-        <Categories />
-        <div className="projects-grid">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <SkeletonLoader key={index} />
-          ))}
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className="flex-start flex-col paddings mb-16">
       <Categories />
 
-      <section className="projects-grid">
-        {projectsToDisplay.map(({ node }: { node: ProjectInterface }) => (
-          <ProjectCard
-            key={node?.id}
-            id={node?.id}
-            image={node?.image}
-            title={node?.title}
-            name={node?.createdBy?.name}
-            avatarUrl={node?.createdBy?.avatarUrl}
-            userId={node?.createdBy?.id}
-          />
-        ))}
-      </section>
+      {loading ? (
+        <SkeletonLoader count={5} /> // Adjust 'count' based on how many loaders you want
+      ) : (
+        <>
+          <section className="projects-grid">
+            {projectsToDisplay.map((project) => (
+              <ProjectCard
+                key={project.id}
+                id={project.id}
+                image={project.image}
+                title={project.title}
+                name={project.createdBy.name}
+                avatarUrl={project.createdBy.avatarUrl}
+                userId={project.createdBy.id}
+              />
+            ))}
+          </section>
 
-      <LoadMore
-        startCursor={pagination.startCursor}
-        endCursor={pagination.endCursor}
-        hasPreviousPage={pagination.hasPreviousPage}
-        hasNextPage={pagination.hasNextPage}
-      />
+          <LoadMore
+            startCursor={pagination.startCursor}
+            endCursor={pagination.endCursor}
+            hasPreviousPage={pagination.hasPreviousPage}
+            hasNextPage={pagination.hasNextPage}
+          />
+        </>
+      )}
     </section>
   );
 };
