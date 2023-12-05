@@ -1,21 +1,19 @@
 "use client"
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Categories from "@/components/Categories";
 import LoadMore from "@/components/LoadMore";
 import ProjectCard from "@/components/ProjectCard";
-import SkeletonLoader from "@/components/SkeletonLoader"; // Import your SkeletonLoader component
+import SkeletonLoader from "@/components/SkeletonLoader"; // Make sure this path is correct
 import { fetchAllProjects } from "@/lib/actions";
 
-interface ProjectInterface {
-  id: string;
-  image: string;
-  title: string;
-  createdBy: {
-    name: string;
-    avatarUrl: string;
-    id: string;
-  };
-}
+type SearchParams = {
+  category?: string;
+  endCursor?: string;
+};
+
+type Props = {
+  searchParams: SearchParams;
+};
 
 type ProjectSearch = {
   projectSearch: {
@@ -29,31 +27,23 @@ type ProjectSearch = {
   };
 };
 
-type Props = {
-  searchParams: {
-    category?: string;
-    endCursor?: string;
-  };
-};
-
 const Home = ({ searchParams: { category, endCursor } }: Props) => {
   const [loading, setLoading] = useState(true);
-  const [projectsToDisplay, setProjectsToDisplay] = useState<ProjectInterface[]>([]);
+  const [projectsToDisplay, setProjectsToDisplay] = useState([]);
   const [pagination, setPagination] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       try {
         const data = (await fetchAllProjects(category, endCursor)) as ProjectSearch;
-        setProjectsToDisplay(data.projectSearch.edges.map(edge => edge.node));
+        setProjectsToDisplay(data.projectSearch.edges || []);
         setPagination(data.projectSearch.pageInfo || {});
+        setLoading(false);
       } catch (error) {
         console.error(error);
-      } finally {
-        setLoading(false);
       }
     };
+
     fetchData();
   }, [category, endCursor]);
 
@@ -66,15 +56,15 @@ const Home = ({ searchParams: { category, endCursor } }: Props) => {
       ) : (
         <>
           <section className="projects-grid">
-            {projectsToDisplay.map((project) => (
+            {projectsToDisplay.map(({ node }: { node: ProjectInterface }) => (
               <ProjectCard
-                key={project.id}
-                id={project.id}
-                image={project.image}
-                title={project.title}
-                name={project.createdBy.name}
-                avatarUrl={project.createdBy.avatarUrl}
-                userId={project.createdBy.id}
+                key={node?.id}
+                id={node?.id}
+                image={node?.image}
+                title={node?.title}
+                name={node?.createdBy?.name}
+                avatarUrl={node?.createdBy?.avatarUrl}
+                userId={node?.createdBy?.id}
               />
             ))}
           </section>
