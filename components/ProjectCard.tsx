@@ -1,8 +1,8 @@
-"use client"
-
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import SkeletonLoader from "./SkeletonLoader"; // Import your SkeletonLoader component
 
 type Props = {
   id: string;
@@ -15,12 +15,26 @@ type Props = {
 
 const ProjectCard = ({ id, image, title, name, avatarUrl, userId }: Props) => {
   const [randomLikes, setRandomLikes] = useState(0);
-  const [randomViews, setRandomViews] = useState('');
+  const [randomViews, setRandomViews] = useState("");
+  const [loading, setLoading] = useState(true); // Added loading state
 
   useEffect(() => {
-    setRandomLikes(Math.floor(Math.random() * 10000))
-    setRandomViews(String((Math.floor(Math.random() * 10000) / 1000).toFixed(1) + 'k'))
+    setRandomLikes(Math.floor(Math.random() * 10000));
+    setRandomViews(
+      String((Math.floor(Math.random() * 10000) / 1000).toFixed(1) + "k")
+    );
+
+    // Simulate loading delay
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 200); // Adjust time as needed
+
+    return () => clearTimeout(timer); // Clear timeout on component unmount
   }, []);
+
+  if (loading) {
+    return <SkeletonLoader />; // Render SkeletonLoader while loading
+  }
 
   return (
     <div className="flexCenter flex-col rounded-2xl drop-shadow-card">
@@ -36,8 +50,8 @@ const ProjectCard = ({ id, image, title, name, avatarUrl, userId }: Props) => {
           alt="Project Image"
         />
 
-        <div className='hidden group-hover:flex profile_card-title'>
-            <p className='w-full'>{title}</p>
+        <div className="hidden group-hover:flex profile_card-title">
+          <p className="w-full">{title}</p>
         </div>
       </Link>
 
@@ -45,11 +59,11 @@ const ProjectCard = ({ id, image, title, name, avatarUrl, userId }: Props) => {
         <Link href={`/profile/${userId}`}>
           <div>
             <Image
-            src={avatarUrl}
-            width={24}
-            height={24}
-            className='rounded-full'
-            alt='Profile Image'
+              src={avatarUrl}
+              width={24}
+              height={24}
+              className="rounded-full"
+              alt="Profile Image"
             />
             <p>{name}</p>
           </div>
@@ -57,12 +71,12 @@ const ProjectCard = ({ id, image, title, name, avatarUrl, userId }: Props) => {
 
         <div className="flexCenter gap-3">
           <div className="flexCenter gap-2">
-            <Image src='/hearth.svg' width={13} height={12} alt='heart' />
-            <p className='text-sm'>{randomLikes}</p>
+            <Image src="/hearth.svg" width={13} height={12} alt="heart" />
+            <p className="text-sm">{randomLikes}</p>
           </div>
           <div className="flexCenter gap-2">
-            <Image src='/eye.svg' width={13} height={12} alt='heart' />
-            <p className='text-sm'>{randomViews}</p>
+            <Image src="/eye.svg" width={13} height={12} alt="heart" />
+            <p className="text-sm">{randomViews}</p>
           </div>
         </div>
       </div>
