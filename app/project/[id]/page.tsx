@@ -66,6 +66,7 @@ const Project = async ({ params: { id } }: { params: { id: string } }) => {
           width={1064}
           height={798}
           alt="poster"
+          loading="lazy"
         />
       </section>
 
