@@ -34,6 +34,6 @@
     "cloudinary": "^1.40.0",
     "graphql-request": "^6.1.0",
     "jsonwebtoken": "^9.0.1",
-    "next-auth": "^4.22.5"
+    "next-auth": "^4.24.5"
   }
 }
