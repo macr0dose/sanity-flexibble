@@ -26,6 +26,21 @@ export const fetchAllProjects = async (category?: string, endCursor?: string) =>
   return await client.fetch(query, params);
 };
 
+
+
+
+export const fetchToken = async () => {
+  // Logic to fetch and return a token
+};
+export const getUserProjects = async (userId: string, limit: number = 100) => {
+  const query = `*[_type == "user" && _id == $userId]{projects[0...$limit]}[0]`;
+  const params = { userId, limit };
+  return await client.fetch(query, params);
+};
+
+
+
+
 // Get project details by ID
 export const getProjectDetails = async (id: string) => {
   const query = `*[_type == "project" && _id == $id][0]`;
