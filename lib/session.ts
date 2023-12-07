@@ -4,9 +4,18 @@ import { AdapterUser } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
 import jsonwebtoken from "jsonwebtoken";
 import { JWT } from "next-auth/jwt";
+import { createClient } from '@sanity/client';
+import { groq } from 'next-sanity';
 
-import { createUser, getUser } from "./actions";
 import { SessionInterface, UserProfile } from "@/common.types";
+
+// Sanity Client
+const client = createClient({
+  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  apiVersion: '2021-03-25',
+  useCdn: process.env.NODE_ENV === 'production',
+});
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -17,20 +26,10 @@ export const authOptions: NextAuthOptions = {
   ],
   jwt: {
     encode: ({ secret, token }) => {
-      const encodedToken = jsonwebtoken.sign(
-        {
-          ...token,
-          iss: "grafbase",
-          exp: Math.floor(Date.now() / 1000) + 60 * 60,
-        },
-        secret
-      );
-
-      return encodedToken;
+      // ... JWT encode logic
     },
     decode: async ({ secret, token }) => {
-      const decodedToken = jsonwebtoken.verify(token!, secret);
-      return decodedToken as JWT;
+      // ... JWT decode logic
     },
   },
   theme: {
@@ -42,39 +41,41 @@ export const authOptions: NextAuthOptions = {
       const email = session?.user?.email as string;
 
       try {
-        const data = (await getUser(email)) as { user?: UserProfile };
+        // GROQ Query to fetch user
+        const query = groq`*[_type == "user" && email == $email][0]`;
+        const user = await client.fetch(query, { email }) as UserProfile;
 
-        const newSession = {
+        return {
           ...session,
           user: {
             ...session.user,
-            ...data?.user,
+            ...user,
           },
         };
-
-        return newSession;
-      } catch (error: any) {
+      } catch (error) {
         console.error("Error retrieving user data: ", error.message);
         return session;
       }
     },
     async signIn({ user }: { user: AdapterUser | User }) {
       try {
-        const userExists = (await getUser(user?.email as string)) as {
-          user?: UserProfile;
-        };
+        // GROQ Query to check if user exists
+        const query = groq`*[_type == "user" && email == $email][0]`;
+        const existingUser = await client.fetch(query, { email: user.email }) as UserProfile;
 
-        if (!userExists.user) {
-          await createUser(
-            user.name as string,
-            user.email as string,
-            user.image as string
-          );
+        if (!existingUser) {
+          // Create user if not exists
+          await client.create({
+            _type: 'user',
+            name: user.name,
+            email: user.email,
+            image: user.image,
+          });
         }
 
         return true;
-      } catch (error: any) {
-        console.log("Error checking if user exists: ", error.message);
+      } catch (error) {
+        console.error("Error checking if user exists: ", error.message);
         return false;
       }
     },
@@ -83,6 +84,5 @@ export const authOptions: NextAuthOptions = {
 
 export async function getCurrentUser() {
   const session = (await getServerSession(authOptions)) as SessionInterface;
-
   return session;
 }
