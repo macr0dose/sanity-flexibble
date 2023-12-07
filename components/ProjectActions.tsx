@@ -10,21 +10,20 @@ const ProjectActions = ({ projectId }: { projectId: string }) => {
     const [isDeleting, setIsDeleting] = useState(false);
     const router = useRouter();
 
-  const handleDeleteProject = async () => {
-    setIsDeleting(true);
-
-    const { token } = await fetchToken();
-
-    try {
-      await deleteProject(projectId, token);
-
-      router.push("/");
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+    const handleDeleteProject = async () => {
+      setIsDeleting(true);
+  
+      try {
+        const { token } = await fetchToken();
+        await deleteProject(projectId, token);
+  
+        router.push("/");
+      } catch (error) {
+        console.error("Error in handleDeleteProject: ", error);
+      } finally {
+        setIsDeleting(false);
+      }
+    };
 
   return (
     <>

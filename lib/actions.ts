@@ -30,7 +30,11 @@ export const fetchAllProjects = async (category?: string, endCursor?: string) =>
 
 
 export const fetchToken = async () => {
-  // Logic to fetch and return a token
+  // Replace this with your actual logic to fetch a token
+  const response = await fetch('/api/auth/token');
+  const data = await response.json();
+
+  return { token: data.token };
 };
 export const getUserProjects = async (userId: string, limit: number = 100) => {
   const query = `*[_type == "user" && _id == $userId]{projects[0...$limit]}[0]`;
